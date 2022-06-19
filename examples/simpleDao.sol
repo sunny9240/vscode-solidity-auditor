@@ -1,4 +1,6 @@
-pragma solidity 1;
+// SPDX-License-Identifier: UNLICENSED
+
+pragma solidity 0.8.15;
 /** 
  * TODO: we do not like todos in production code
  * HACK: nope. don't release hacks
@@ -19,7 +21,7 @@ contract SimpleDAO {
 
     function withdraw(uint amount) public{
         if (credit[msg.sender] >= amount) {
-            msg.sender.call.value(amount)("");
+            msg.sender.call({value: amount});
             credit[msg.sender] -= amount;
         }
     }
@@ -29,5 +31,5 @@ contract SimpleDAO {
     }
 
     constructor() public payable { /* constructor */ }
-    function() external payable { /* fallback */ }
+    receive() external payable { /* fallback */ }
 }

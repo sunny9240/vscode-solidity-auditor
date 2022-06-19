@@ -323,28 +323,39 @@ class Commands{
                 break;
                 case "auditreport":
                     ret = surya.mdreport(files, {negModifiers: settings.extensionConfig().tools.surya.option.negModifiers});
+                    console.log("midreport = ", ret);
+                    
                     if(!ret) {
                         return;
                     }
-                    vscode.workspace.openTextDocument({content: ret, language: "markdown"})
-                        .then(doc => {
-                            if(settings.extensionConfig().preview.markdown){
-                                vscode.commands.executeCommand("markdown-preview-enhanced.openPreview", doc.uri)
-                                    .catch(error => {
-                                        //command does not exist
-                                        vscode.window.showTextDocument(doc, vscode.ViewColumn.Beside)
-                                            .then(editor => {
-                                                vscode.commands.executeCommand("markdown.extension.togglePreview")
-                                                .catch(error => {
-                                                    //command does not exist
-                                                });
-                                            });
-                                    });
-                            } else {
-                                vscode.window.showTextDocument(doc, vscode.ViewColumn.Beside);
-                            }
-                            //command not available. fallback open as text
-                        });
+                    // vscode.workspace.openTextDocument({content: ret, language: "markdown"})
+                    //     .then(doc => {
+                    //         if(settings.extensionConfig().preview.markdown){
+                    //             vscode.commands.executeCommand("markdown-preview-enhanced.openPreview", doc.uri)
+                    //                 .catch(error => {
+                    //                     //command does not exist
+                    //                     vscode.window.showTextDocument(doc, vscode.ViewColumn.Beside)
+                    //                         .then(editor => {
+                    //                             vscode.commands.executeCommand("markdown.extension.togglePreview")
+                    //                             .catch(error => {
+                    //                                 //command does not exist
+                    //                             });
+                    //                         });
+                    //                 });
+                    //         } else {
+                    //             vscode.window.showTextDocument(doc, vscode.ViewColumn.Beside);
+                    //         }
+                    //         //command not available. fallback open as text
+                    //     });
+
+                       const reportSubGraphData = `
+                      subgraph cluster_0 {
+    style=filled;
+    color=lightgrey;
+    node [style=filled,color=white];
+    "${ret}"
+    label = "Report";
+  }`;
 
                     ///////////////////////////// Graph //////////////////////////
                     if(command=="graphSimple"){
@@ -352,6 +363,16 @@ class Commands{
                     } else {
                         ret = surya.graph(args || files, {colorScheme: suryaDefaultColorSchemeDark});
                     }
+
+                    ret =
+                      ret.substr(0, ret.lastIndexOf("}")) +
+                      `${reportSubGraphData}` +
+                      "}";
+
+                    console.log(
+                      " ---------------- ret --------------------",
+                      ret
+                    );
                     //solidity-va.preview.render.markdown
                     vscode.workspace.openTextDocument({content: ret, language: "dot"})
                         .then(doc => {
